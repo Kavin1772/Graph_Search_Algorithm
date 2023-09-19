@@ -1,0 +1,73 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import time
+
+def dfs(grid, start, goal):
+    rows, cols = len(grid), len(grid[0])
+    visited = [[False] * cols for _ in range(rows)]
+    stack = [(start[0], start[1])]
+
+    plt.ion()  # Turn on interactive mode for live visualization
+    fig, ax = plt.subplots()
+
+    while stack:
+        x, y = stack.pop()
+        visited[x][y] = True
+
+        # Visualization: Draw the grid and current position
+        draw_grid(ax, grid, visited)
+        plt.pause(0.1)
+
+        if (x, y) == goal:
+            plt.ioff()  # Turn off interactive mode after the search is done
+            return True
+
+        moves = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        for dx, dy in moves:
+            nx, ny = x + dx, y + dy
+
+            if 0 <= nx < rows and 0 <= ny < cols and not visited[nx][ny] and grid[nx][ny] != 'wall':
+                stack.append((nx, ny))
+
+    plt.ioff()  # Turn off interactive mode if the search fails
+    return False
+
+def draw_grid(ax, grid, visited):
+    ax.clear()
+    cmap = plt.cm.get_cmap("YlGn")
+    norm = plt.Normalize(0, 1)
+
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == 'wall':
+                ax.add_patch(plt.Rectangle((j, len(grid) - i - 1), 1, 1, color="gray"))
+            elif visited[i][j]:
+                ax.add_patch(plt.Rectangle((j, len(grid) - i - 1), 1, 1, color="green"))
+
+    ax.set_xlim(0, len(grid[0]))
+    ax.set_ylim(0, len(grid))
+    ax.set_aspect('equal', adjustable='box')
+    plt.draw()
+
+# Example usage:
+grid = [
+    ['S', ' ', ' ', ' ', ' ', ' '],
+    [' ', 'wall', ' ', 'wall', ' ', ' '],
+    [' ', ' ', 'wall', ' ', ' ', ' '],
+    [' ', 'wall', ' ', 'wall', 'wall', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', 'wall', 'wall', 'wall', ' ', 'G']
+]
+
+start = (0, 0)
+goal = (5, 5)
+
+result = dfs(grid, start, goal)
+
+if result:
+    print("Path found!")
+else:
+    print("No path found.")
+
+plt.show()  # Display the final grid
